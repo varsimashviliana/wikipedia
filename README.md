@@ -211,6 +211,43 @@ Java-ს კი თავისი ცალკე საცავი აქვ�
 **გადაწყვეტა:** უკვე ჩაშენებულია `pom.xml`-ში — Windows-ზე ავტომატურად
 ირთვება პროფილი `-Djavax.net.ssl.trustStoreType=WINDOWS-ROOT`.
 
+### „Unable to establish loopback connection" — ვებ ტესტები არ იშვება
+
+**სიმპტომი:** API ტესტები მუშაობს, ვებ ტესტები კი ჩავარდება შეცდომით:
+
+```
+java.io.UncheckedIOException: java.io.IOException: Unable to establish loopback connection
+    at java.net.http/jdk.internal.net.http.HttpClientBuilderImpl.build(...)
+Caused by: java.net.SocketException: Invalid argument: connect
+    at java.base/sun.nio.ch.PipeImpl$Initializer$LoopbackConnector.run(...)
+```
+
+**მიზეზი:** კომპიუტერზე დგას EDR ტიპის უსაფრთხოების აგენტი
+(მაგ. **SentinelOne**, CrowdStrike), რომელიც სოკეტების შექმნას აკონტროლებს
+და ბლოკავს იმ ოპერაციას, რომელსაც Java-ს `Selector.open()` იყენებს.
+Selenium 4 ბრაუზერს `java.net.http.HttpClient`-ით ესაუბრება, ის კი
+სწორედ `Selector`-ს ეყრდნობა.
+
+**როგორ დავრწმუნდეთ, რომ ეს არის მიზეზი** — გაუშვი ეს პატარა პროგრამა:
+
+```java
+// java Check.java
+import java.nio.channels.Selector;
+public class Check {
+    public static void main(String[] a) {
+        try (Selector s = Selector.open()) { System.out.println("OK — Selenium იმუშავებს"); }
+        catch (Throwable t) { System.out.println("FAIL — EDR ბლოკავს: " + t); }
+    }
+}
+```
+
+**გადაწყვეტა:**
+1. სხვა კომპიუტერზე/ქსელზე გაშვება (სახლის კომპიუტერი) — უმარტივესია
+2. IT-სგან `java.exe`-ს დაშვების მოთხოვნა უსაფრთხოების აგენტში
+
+> ეს **კოდის პრობლემა არაა** — ტესტები ნებისმიერ ჩვეულებრივ კომპიუტერზე გაეშვება.
+> RestAssured (API ტესტები) იმიტომ მუშაობს, რომ სხვა HTTP კლიენტს იყენებს.
+
 ### „Connection reset" / „Unable to obtain chromedriver"
 
 **მიზეზი:** ქსელი ბლოკავს დრაივერების ჩამოტვირთვის სერვერებს
