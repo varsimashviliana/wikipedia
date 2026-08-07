@@ -1,5 +1,6 @@
 package ge.automation.pages;
 
+import ge.automation.config.ConfigReader;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -20,7 +21,7 @@ public class PortalPage extends BasePage {
     @FindBy(id = "js-link-box-en")
     private WebElement englishLink;
 
-    @FindBy(xpath = "//div[contains(@class,'central-featured-logo')]")
+    @FindBy(xpath = "//img[contains(@class,'central-featured-logo')]")
     private WebElement centralLogo;
 
     @FindBy(css = "div.central-featured-lang")
@@ -32,17 +33,19 @@ public class PortalPage extends BasePage {
 
     @Override
     public boolean isPageOpened() {
-        return isDisplayed(searchInput) && isDisplayed(languageDropdown);
+        return isDisplayed(searchInput) && isPresent(languageDropdown);
     }
 
     public SearchResultsPage searchFor(String query) {
         typeAndEnter(searchInput, query);
+        waitUntilUrlDoesNotContain(ConfigReader.get("portal.url"));
         return new SearchResultsPage(driver);
     }
 
     public SearchResultsPage searchUsingButton(String query) {
         type(searchInput, query);
         click(searchButton);
+        waitUntilUrlDoesNotContain(ConfigReader.get("portal.url"));
         return new SearchResultsPage(driver);
     }
 
@@ -66,7 +69,7 @@ public class PortalPage extends BasePage {
 
     public boolean hasLanguageOption(String visibleText) {
         return getSelectOptions(languageDropdown).stream()
-                .anyMatch(option -> option.getText().trim().equalsIgnoreCase(visibleText));
+                .anyMatch(option -> optionText(option).equalsIgnoreCase(visibleText));
     }
 
     public PortalPage hoverOverEnglish() {

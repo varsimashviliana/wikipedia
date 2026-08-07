@@ -17,7 +17,7 @@
         <classes>
             <class name="ge.automation.tests.web.SearchTest"/>
             <class name="ge.automation.tests.web.LanguageDropdownTest"/>
-            <class name="ge.automation.tests.web.AdvancedSearchTest"/>
+            <class name="ge.automation.tests.web.CheckboxTest"/>
             <class name="ge.automation.tests.web.LoginTest"/>
             <class name="ge.automation.tests.web.RegistrationTest"/>
         </classes>

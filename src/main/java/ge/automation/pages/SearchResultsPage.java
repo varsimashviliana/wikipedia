@@ -22,18 +22,6 @@ public class SearchResultsPage extends BasePage {
     @FindBy(css = "input[name='search']")
     private WebElement searchBox;
 
-    @FindBy(id = "mw-search-ns0")
-    private WebElement articleNamespaceCheckbox;
-
-    @FindBy(id = "mw-search-ns1")
-    private WebElement talkNamespaceCheckbox;
-
-    @FindBy(id = "mw-search-ns2")
-    private WebElement userNamespaceCheckbox;
-
-    @FindBy(css = "input[id^='mw-search-ns']")
-    private List<WebElement> allNamespaceCheckboxes;
-
     @FindBy(css = "button[type='submit']")
     private WebElement searchSubmitButton;
 
@@ -79,40 +67,6 @@ public class SearchResultsPage extends BasePage {
 
     public boolean isNoResultsMessageDisplayed() {
         return !driver.findElements(By.cssSelector(".mw-search-nonefound")).isEmpty();
-    }
-
-    public int getNamespaceCheckboxCount() {
-        return allNamespaceCheckboxes.size();
-    }
-
-    public boolean isArticleNamespaceSelected() {
-        return articleNamespaceCheckbox.isSelected();
-    }
-
-    public boolean isTalkNamespaceSelected() {
-        return talkNamespaceCheckbox.isSelected();
-    }
-
-    public SearchResultsPage checkTalkNamespace() {
-        scrollToElement(talkNamespaceCheckbox);
-        checkCheckbox(talkNamespaceCheckbox);
-        return this;
-    }
-
-    public SearchResultsPage uncheckTalkNamespace() {
-        scrollToElement(talkNamespaceCheckbox);
-        uncheckCheckbox(talkNamespaceCheckbox);
-        return this;
-    }
-
-    public SearchResultsPage checkUserNamespace() {
-        scrollToElement(userNamespaceCheckbox);
-        checkCheckbox(userNamespaceCheckbox);
-        return this;
-    }
-
-    public boolean isUserNamespaceSelected() {
-        return userNamespaceCheckbox.isSelected();
     }
 
     public SearchResultsPage searchAgain(String query) {

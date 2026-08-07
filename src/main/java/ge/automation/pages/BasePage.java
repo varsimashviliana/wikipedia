@@ -45,6 +45,21 @@ public abstract class BasePage {
         return wait.until(ExpectedConditions.elementToBeClickable(element));
     }
 
+    protected WebElement waitUntilPresent(WebElement element) {
+        wait.until(driver -> isPresent(element));
+        return element;
+    }
+
+    protected WebElement revealElement(WebElement element) {
+        waitUntilPresent(element);
+        if (!element.isDisplayed()) {
+            ((JavascriptExecutor) driver).executeScript(
+                    "arguments[0].style.opacity = '1';"
+                            + "arguments[0].style.visibility = 'visible';", element);
+        }
+        return element;
+    }
+
     protected WebElement fluentWaitFor(By locator) {
         FluentWait<WebDriver> fluentWait = new FluentWait<>(driver)
                 .withTimeout(Duration.ofSeconds(ConfigReader.getInt("fluent.wait.timeout")))
@@ -57,6 +72,10 @@ public abstract class BasePage {
 
     protected boolean waitUntilUrlContains(String part) {
         return wait.until(ExpectedConditions.urlContains(part));
+    }
+
+    protected boolean waitUntilUrlDoesNotContain(String part) {
+        return wait.until(ExpectedConditions.not(ExpectedConditions.urlContains(part)));
     }
 
     protected void click(WebElement element) {
@@ -88,34 +107,39 @@ public abstract class BasePage {
         }
     }
 
-    protected void selectByVisibleText(WebElement selectElement, String visibleText) {
-        new Select(waitUntilVisible(selectElement)).selectByVisibleText(visibleText);
-    }
-
-    protected void selectByValue(WebElement selectElement, String value) {
-        new Select(waitUntilVisible(selectElement)).selectByValue(value);
-    }
-
-    protected List<WebElement> getSelectOptions(WebElement selectElement) {
-        return new Select(waitUntilVisible(selectElement)).getOptions();
-    }
-
-    protected String getSelectedOption(WebElement selectElement) {
-        return new Select(waitUntilVisible(selectElement))
-                .getFirstSelectedOption().getText().trim();
-    }
-
-    protected void checkCheckbox(WebElement checkbox) {
-        WebElement el = waitUntilClickable(checkbox);
-        if (!el.isSelected()) {
-            el.click();
+    protected boolean isPresent(WebElement element) {
+        try {
+            return element.isEnabled();
+        } catch (NoSuchElementException | StaleElementReferenceException e) {
+            return false;
         }
     }
 
-    protected void uncheckCheckbox(WebElement checkbox) {
-        WebElement el = waitUntilClickable(checkbox);
-        if (el.isSelected()) {
-            el.click();
+    protected void selectByVisibleText(WebElement selectElement, String visibleText) {
+        new Select(revealElement(selectElement)).selectByVisibleText(visibleText);
+    }
+
+    protected void selectByValue(WebElement selectElement, String value) {
+        new Select(revealElement(selectElement)).selectByValue(value);
+    }
+
+    protected List<WebElement> getSelectOptions(WebElement selectElement) {
+        return new Select(revealElement(selectElement)).getOptions();
+    }
+
+    protected String getSelectedOption(WebElement selectElement) {
+        return optionText(new Select(revealElement(selectElement)).getFirstSelectedOption());
+    }
+
+    protected String optionText(WebElement option) {
+        String text = option.getDomProperty("text");
+        return text == null ? "" : text.trim();
+    }
+
+    protected void setCheckbox(WebElement checkbox, WebElement label, boolean checked) {
+        waitUntilPresent(checkbox);
+        if (checkbox.isSelected() != checked) {
+            click(label);
         }
     }
 

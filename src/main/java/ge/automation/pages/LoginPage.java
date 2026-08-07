@@ -17,6 +17,9 @@ public class LoginPage extends BasePage {
     @FindBy(id = "wpRemember")
     private WebElement rememberMeCheckbox;
 
+    @FindBy(css = "label[for='wpRemember']")
+    private WebElement rememberMeLabel;
+
     @FindBy(id = "wpLoginAttempt")
     private WebElement loginButton;
 
@@ -65,7 +68,12 @@ public class LoginPage extends BasePage {
     }
 
     public LoginPage checkRememberMe() {
-        checkCheckbox(rememberMeCheckbox);
+        setCheckbox(rememberMeCheckbox, rememberMeLabel, true);
+        return this;
+    }
+
+    public LoginPage uncheckRememberMe() {
+        setCheckbox(rememberMeCheckbox, rememberMeLabel, false);
         return this;
     }
 

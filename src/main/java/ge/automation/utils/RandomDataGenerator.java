@@ -13,7 +13,7 @@ public final class RandomDataGenerator {
     }
 
     public static String username() {
-        return "QaUser_" + randomLetters(4) + randomNumber(4);
+        return "QaUser" + randomLetters(4) + randomNumber(4);
     }
 
     public static String email() {
