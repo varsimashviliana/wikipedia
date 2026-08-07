@@ -9,20 +9,8 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-/**
- * ტესტი №1 — ძებნის ფუნქციონალი.
- *
- * <p>ფარავს: ძებნის ველი, კლავიატურის მოქმედება (Enter), ღილაკზე დაჭერა,
- * შედეგების ვალიდაცია, სტატიის გახსნა, @DataProvider.</p>
- */
 public class SearchTest extends BaseTest {
 
-    /**
-     * ტესტი 1.1 — ძებნა პორტალიდან Enter-ის დაჭერით.
-     *
-     * <p><b>groups</b> — ტესტების დაჯგუფება (სილაბუსი, მე-14 ლექცია).
-     * ასე შეგვიძლია მხოლოდ "smoke" ჯგუფი გავუშვათ სწრაფი შემოწმებისთვის.</p>
-     */
     @Test(priority = 1,
           groups = {"smoke", "search"},
           description = "პორტალიდან ძებნა Enter-ით და შედეგის შემოწმება")
@@ -35,8 +23,6 @@ public class SearchTest extends BaseTest {
 
         portal.searchFor("Selenium");
 
-        // ძებნის შემდეგ ან სტატიაზე ვხვდებით, ან შედეგების სიაში —
-        // ორივე შემთხვევაში URL-ში "wikipedia.org" უნდა იყოს
         String url = driver.getCurrentUrl();
         Assert.assertTrue(url.contains("wikipedia.org"),
                 "ძებნის შემდეგ ვიკიპედიაზე არ გადავედით. URL: " + url);
@@ -46,12 +32,6 @@ public class SearchTest extends BaseTest {
                 "გვერდის სათაურში 'Selenium' არ არის. სათაური: " + title);
     }
 
-    /**
-     * ტესტი 1.2 — სრული ტექსტური ძებნა და შედეგების სიის შემოწმება.
-     *
-     * <p>fulltext=1 პარამეტრი აიძულებს ვიკიპედიას შედეგების სია აჩვენოს
-     * (და არა პირდაპირ სტატიაზე გადაგვისროს).</p>
-     */
     @Test(priority = 2,
           groups = {"smoke", "search"},
           description = "სრული ძებნა და შედეგების სიის ვალიდაცია")
@@ -72,9 +52,6 @@ public class SearchTest extends BaseTest {
                         + "ნაპოვნი სათაურები: " + results.getResultTitles());
     }
 
-    /**
-     * ტესტი 1.3 — შედეგიდან სტატიის გახსნა.
-     */
     @Test(priority = 3,
           groups = {"regression", "search"},
           description = "ძებნის შედეგიდან სტატიის გახსნა")
@@ -98,11 +75,6 @@ public class SearchTest extends BaseTest {
                 "სტატიაში აბზაცები არ არის");
     }
 
-    /**
-     * ტესტი 1.4 — არარსებული სიტყვის ძებნა.
-     * ეს <b>ნეგატიური ტესტია</b> — ვამოწმებთ, სისტემა სწორად იქცევა თუ არა,
-     * როცა შედეგი არ არსებობს.
-     */
     @Test(priority = 4,
           groups = {"regression", "search"},
           description = "არარსებული სიტყვის ძებნა — შედეგი არ უნდა იყოს")
@@ -118,13 +90,6 @@ public class SearchTest extends BaseTest {
                 "არარსებულ სიტყვაზე შედეგები დაბრუნდა, რაც არ უნდა მომხდარიყო");
     }
 
-    /**
-     * ტესტი 1.5 — რამდენიმე სიტყვის ძებნა @DataProvider-ით.
-     *
-     * <p><b>@DataProvider</b> — ერთი ტესტი მრავალი მონაცემით სრულდება.
-     * აქ ტესტი 3-ჯერ გაეშვება: "Java", "Python", "JavaScript".
-     * ეს ბევრად სჯობს 3 თითქმის იდენტური ტესტის დაწერას.</p>
-     */
     @DataProvider(name = "searchTerms")
     public Object[][] searchTerms() {
         return new Object[][]{
@@ -149,14 +114,6 @@ public class SearchTest extends BaseTest {
         System.out.println("      '" + term + "' → " + results.getResultCount() + " შედეგი");
     }
 
-    // ---------------------------------------------------------------
-    //  დამხმარე მეთოდი
-    // ---------------------------------------------------------------
-
-    /**
-     * პირდაპირ ხსნის ძებნის შედეგების გვერდს.
-     * fulltext=1 — აჩვენე სია, პირდაპირ სტატიაზე ნუ გადამისვრი.
-     */
     private void openSearchResults(String query) {
         String url = ConfigReader.get("wiki.url")
                 + "/w/index.php?search=" + query.replace(" ", "+")

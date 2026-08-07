@@ -10,17 +10,6 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-/**
- * ტესტი №4 — <b>ლოგინი</b> (დავალების მე-4 პუნქტი).
- *
- * <p>ფარავს: ფორმის შევსება, ნეგატიური ტესტირება, შეცდომის შეტყობინების
- * ვალიდაცია, checkbox, @DataProvider, SkipException.</p>
- *
- * <p><b>რატომ ნეგატიური ტესტები?</b><br>
- * პოზიტიური ლოგინისთვის რეალური ანგარიში გვჭირდება. ნეგატიური ტესტები
- * კი ანგარიშის გარეშე მუშაობს და <u>უფრო მნიშვნელოვანიც არის</u> —
- * ისინი ამოწმებენ, სისტემა სწორად იცავს თუ არა თავს არასწორი მონაცემებისგან.</p>
- */
 public class LoginTest extends BaseTest {
 
     private LoginPage loginPage;
@@ -30,12 +19,6 @@ public class LoginTest extends BaseTest {
         loginPage = new LoginPage(driver).open();
     }
 
-    /**
-     * ტესტი 4.1 — ლოგინის გვერდი იხსნება და რედირექტი სწორად ხდება.
-     *
-     * <p>ვიკიპედია ლოგინს <code>auth.wikimedia.org</code>-ზე გადაისვრის.
-     * ეს წინასწარ შევამოწმეთ საიტზე — ამის ცოდნის გარეშე ტესტი ჩავარდებოდა.</p>
-     */
     @Test(priority = 1,
           groups = {"smoke", "login"},
           description = "ლოგინის გვერდი იხსნება და auth დომენზე გადაგვისვრის")
@@ -53,10 +36,6 @@ public class LoginTest extends BaseTest {
                 "ლოგინის ფორმა (form[name=userlogin]) ვერ მოიძებნა");
     }
 
-    /**
-     * ტესტი 4.2 — არასწორი მონაცემებით ლოგინი → შეცდომა.
-     * <b>ეს არის მთავარი ნეგატიური ტესტი.</b>
-     */
     @Test(priority = 2,
           groups = {"smoke", "login"},
           description = "არასწორი მომხმარებელი/პაროლი → შეცდომის შეტყობინება")
@@ -77,21 +56,14 @@ public class LoginTest extends BaseTest {
                         + "  რეალური:     " + error);
     }
 
-    /**
-     * ტესტი 4.3 — ცარიელი ველებით ლოგინი.
-     *
-     * <p>ველები HTML5-ის <code>required</code>-ით არის დაცული,
-     * ამიტომ ბრაუზერი ფორმას საერთოდ არ გააგზავნის და გვერდზე დავრჩებით.</p>
-     */
     @Test(priority = 3,
           groups = {"smoke", "login"},
           description = "ცარიელი ველებით ლოგინი — ფორმა არ იგზავნება")
     public void loginWithEmptyFieldsIsBlocked() {
         String urlBefore = loginPage.getCurrentUrl();
 
-        loginPage.clickLogin();   // ველების შევსების გარეშე
+        loginPage.clickLogin();
 
-        // ფორმა არ უნდა გაგზავნილიყო → ისევ ლოგინის გვერდზე ვართ
         Assert.assertTrue(loginPage.isLoginFormDisplayed(),
                 "ცარიელი ფორმა გაიგზავნა, რაც არ უნდა მომხდარიყო");
 
@@ -100,9 +72,6 @@ public class LoginTest extends BaseTest {
                 "username ველი ცარიელი უნდა იყოს");
     }
 
-    /**
-     * ტესტი 4.4 — "Keep me logged in" checkbox.
-     */
     @Test(priority = 4,
           groups = {"regression", "login"},
           description = "Remember-me checkbox მუშაობს")
@@ -121,9 +90,6 @@ public class LoginTest extends BaseTest {
         System.out.println("      Remember-me checkbox მუშაობს ✓");
     }
 
-    /**
-     * ტესტი 4.5 — არასწორი მონაცემების რამდენიმე ვარიანტი (@DataProvider).
-     */
     @DataProvider(name = "invalidCredentials")
     public Object[][] invalidCredentials() {
         return new Object[][]{
@@ -146,18 +112,6 @@ public class LoginTest extends BaseTest {
                 "'" + caseName + "' — შეცდომა არ გამოჩნდა, თუმცა უნდა გამოჩენილიყო");
     }
 
-    /**
-     * ტესტი 4.6 — <b>პოზიტიური</b> ლოგინი.
-     *
-     * <p><b>სილაბუსი, მე-14 ლექცია: "ტესტის გამოტოვების შესაძლებლობა".</b><br>
-     * ამ ტესტს რეალური ანგარიში სჭირდება. თუ config.properties-ში
-     * <code>valid.username</code> და <code>valid.password</code> ცარიელია,
-     * <code>SkipException</code>-ს ვისვრით — ტესტი <b>გამოტოვდება</b> (SKIPPED),
-     * და არა ჩავარდება (FAILED).</p>
-     *
-     * <p>ეს სწორი მიდგომაა: ტესტი, რომელიც გარემოს გამო ვერ შესრულდება,
-     * არ უნდა ჩაითვალოს შეცდომად.</p>
-     */
     @Test(priority = 6,
           groups = {"regression", "login"},
           description = "პოზიტიური ლოგინი — გამოტოვდება თუ მონაცემები არ არის")

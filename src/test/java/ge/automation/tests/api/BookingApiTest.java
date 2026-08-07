@@ -21,38 +21,10 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.notNullValue;
 
-/**
- * ტესტი №6 — <b>API ტესტირება RestAssured-ით</b> (დავალების მე-8 პუნქტი).
- *
- * <p><b>დავალების ტექსტი:</b> "შექმენით კლასი სადაც ტოკენი იქნება ავტორიზებული,
- * გამოიყენეთ restassured მეთოდები და მისი გამოყენებით გაუშვით get მეთოდები.
- * ერთი ქეისი მაინც დაწერეთ, რომ პასუხის (response) მონაცემები შემოწმდეს
- * და ასევე სტატუს კოდი."</p>
- *
- * <p><b>ფარავს (სილაბუსი, მე-17–19 ლექციები):</b>
- * <ul>
- *   <li>ტოკენით ავტორიზაცია (AuthClient კლასი)</li>
- *   <li>GET, POST, PUT, DELETE მოთხოვნები</li>
- *   <li>HTTP სტატუს კოდების ვალიდაცია</li>
- *   <li>JSON პასუხის მონაცემების ვალიდაცია</li>
- *   <li>Path პარამეტრები და Query პარამეტრები</li>
- *   <li>Request / Response headers</li>
- *   <li>JSON მონაცემთა ფაილის გამოყენება</li>
- *   <li>დინამიური მონაცემების გენერაცია</li>
- * </ul>
- * </p>
- *
- * <p><b>ეს კლასი BaseTest-ს არ იმემკვიდრებს</b> — API ტესტს ბრაუზერი არ სჭირდება,
- * ამიტომ ზედმეტად არ ვხსნით Chrome-ს (ტესტები ბევრად სწრაფად გადის).</p>
- */
 public class BookingApiTest {
 
     private AuthClient authClient;
 
-    /**
-     * @BeforeClass — ერთხელ სრულდება, ამ კლასის ყველა ტესტამდე.
-     * ტოკენს ერთხელ ვიღებთ და ყველა ტესტში ვიყენებთ.
-     */
     @BeforeClass(alwaysRun = true)
     public void authorizeOnce() {
         System.out.println("\n🔑  ვიღებთ ავტორიზაციის ტოკენს...");
@@ -60,13 +32,6 @@ public class BookingApiTest {
         System.out.println("    ტოკენი მიღებულია: " + authClient.getToken());
     }
 
-    // =================================================================
-    //  1. ავტორიზაცია (POST) — ტოკენის მიღება
-    // =================================================================
-
-    /**
-     * ტესტი 6.1 — ტოკენი მიღებულია და ვალიდურია.
-     */
     @Test(priority = 1,
           groups = {"smoke", "api"},
           description = "POST /auth აბრუნებს ვალიდურ ტოკენს")
@@ -83,10 +48,6 @@ public class BookingApiTest {
         System.out.println("      ტოკენის სიგრძე: " + token.length());
     }
 
-    /**
-     * ტესტი 6.2 — არასწორი მონაცემებით ავტორიზაცია ტოკენს არ აბრუნებს.
-     * <b>ნეგატიური ტესტი.</b>
-     */
     @Test(priority = 2,
           groups = {"regression", "api"},
           description = "არასწორი მონაცემებით POST /auth ტოკენს არ იძლევა")
@@ -108,19 +69,11 @@ public class BookingApiTest {
         System.out.println("      სტატუს კოდი: " + response.statusCode());
         System.out.println("      პასუხი: " + response.asString());
 
-        // ტოკენი არ უნდა იყოს — სამაგიეროდ "reason" ველი ჩნდება
         String token = response.jsonPath().getString("token");
         Assert.assertNull(token,
                 "არასწორი მონაცემებით ტოკენი დაბრუნდა, რაც უსაფრთხოების პრობლემაა!");
     }
 
-    // =================================================================
-    //  2. GET მოთხოვნები — მთავარი მოთხოვნა დავალებაში
-    // =================================================================
-
-    /**
-     * ტესტი 6.3 — <b>GET ყველა ჯავშნის სია</b> + სტატუს კოდი + headers.
-     */
     @Test(priority = 3,
           groups = {"smoke", "api"},
           description = "GET /booking აბრუნებს ჯავშნების სიას (200)")
@@ -129,8 +82,8 @@ public class BookingApiTest {
                 .when()
                     .get(ConfigReader.get("api.booking.path"))
                 .then()
-                    .statusCode(200)                         // <-- სტატუს კოდის ვალიდაცია
-                    .contentType(ContentType.JSON)           // <-- Content-Type header-ის შემოწმება
+                    .statusCode(200)
+                    .contentType(ContentType.JSON)
                     .extract().response();
 
         List<Integer> bookingIds = response.jsonPath().getList("bookingid");
@@ -142,18 +95,10 @@ public class BookingApiTest {
         Assert.assertTrue(bookingIds.size() > 0, "ჯავშნების სია ცარიელია");
     }
 
-    /**
-     * ტესტი 6.4 — <b>GET ერთი ჯავშანი Path პარამეტრით</b>
-     * და პასუხის მონაცემების სრული ვალიდაცია.
-     *
-     * <p><b>ეს არის დავალების მთავარი მოთხოვნა:</b> "ერთი ქეისი მაინც დაწერეთ,
-     * რომ პასუხის მონაცემები შემოწმდეს და ასევე სტატუს კოდი".</p>
-     */
     @Test(priority = 4,
           groups = {"smoke", "api"},
           description = "GET /booking/{id} — პასუხის მონაცემების და სტატუს კოდის ვალიდაცია")
     public void getSingleBookingValidatesResponseData() {
-        // ჯერ ჩვენს ჯავშანს ვქმნით, რომ ზუსტად ვიცოდეთ რა მონაცემები უნდა დაბრუნდეს
         String firstName = RandomDataGenerator.firstName();
         String lastName = RandomDataGenerator.lastName();
         int price = RandomDataGenerator.price();
@@ -161,15 +106,13 @@ public class BookingApiTest {
         int bookingId = createBooking(firstName, lastName, price);
         System.out.println("      შევქმენით ჯავშანი id=" + bookingId);
 
-        // --- GET ამ კონკრეტული ჯავშნისთვის (Path პარამეტრი) ---
         Response response = authClient.publicRequest()
-                .pathParam("id", bookingId)                  // <-- Path პარამეტრი
+                .pathParam("id", bookingId)
                 .when()
                     .get(ConfigReader.get("api.booking.path") + "/{id}")
                 .then()
-                    .statusCode(200)                         // <-- სტატუს კოდი
+                    .statusCode(200)
                     .contentType(ContentType.JSON)
-                    // --- პასუხის მონაცემების ვალიდაცია hamcrest matcher-ებით ---
                     .body("firstname", equalTo(firstName))
                     .body("lastname", equalTo(lastName))
                     .body("totalprice", equalTo(price))
@@ -180,7 +123,6 @@ public class BookingApiTest {
 
         System.out.println("      პასუხი: " + response.asString());
 
-        // --- იგივე ვალიდაცია TestNG-ის Assert-ებით (ორივე გზა ვაჩვენოთ) ---
         SoftAssert softAssert = new SoftAssert();
         softAssert.assertEquals(response.statusCode(), 200, "სტატუს კოდი არასწორია");
         softAssert.assertEquals(response.jsonPath().getString("firstname"), firstName,
@@ -192,13 +134,9 @@ public class BookingApiTest {
         softAssert.assertAll();
 
         System.out.println("      ყველა ველი ვალიდურია ✓");
-        deleteBooking(bookingId);   // ვასუფთავებთ თავის შემდეგ
+        deleteBooking(bookingId);
     }
 
-    /**
-     * ტესტი 6.5 — <b>GET Query პარამეტრებით</b> (ფილტრაცია).
-     * სილაბუსი, მე-19 ლექცია: "Path და Query პარამეტრების გამოყენება".
-     */
     @Test(priority = 5,
           groups = {"regression", "api"},
           description = "GET /booking?firstname=X&lastname=Y — ფილტრაცია query პარამეტრებით")
@@ -209,7 +147,7 @@ public class BookingApiTest {
         int bookingId = createBooking(firstName, lastName, 199);
 
         Response response = authClient.publicRequest()
-                .queryParam("firstname", firstName)          // <-- Query პარამეტრები
+                .queryParam("firstname", firstName)
                 .queryParam("lastname", lastName)
                 .when()
                     .get(ConfigReader.get("api.booking.path"))
@@ -227,10 +165,6 @@ public class BookingApiTest {
         deleteBooking(bookingId);
     }
 
-    /**
-     * ტესტი 6.6 — არარსებული ჯავშნის მოთხოვნა → 404.
-     * <b>ნეგატიური ტესტი სტატუს კოდზე.</b>
-     */
     @Test(priority = 6,
           groups = {"regression", "api"},
           description = "GET არარსებული id → 404 Not Found")
@@ -247,14 +181,6 @@ public class BookingApiTest {
                 "არარსებულ ჯავშანზე 404 უნდა დაბრუნებულიყო");
     }
 
-    // =================================================================
-    //  3. POST — JSON ფაილიდან მონაცემებით
-    // =================================================================
-
-    /**
-     * ტესტი 6.7 — <b>POST JSON ფაილიდან</b>.
-     * სილაბუსი, მე-19 ლექცია: "მონაცემთა ფაილების გამოყენება (JSON და XML)".
-     */
     @Test(priority = 7,
           groups = {"regression", "api"},
           description = "POST /booking — body იკითხება JSON ფაილიდან")
@@ -264,7 +190,7 @@ public class BookingApiTest {
 
         Response response = authClient.publicRequest()
                 .contentType(ContentType.JSON)
-                .body(jsonBody)                              // <-- body ფაილიდან
+                .body(jsonBody)
                 .when()
                     .post(ConfigReader.get("api.booking.path"))
                 .then()
@@ -282,14 +208,6 @@ public class BookingApiTest {
         deleteBooking(id);
     }
 
-    // =================================================================
-    //  4. PUT და DELETE — აქ ტოკენი აუცილებელია
-    // =================================================================
-
-    /**
-     * ტესტი 6.8 — <b>PUT (განახლება) ტოკენით</b>.
-     * ეს მოთხოვნა ავტორიზაციის გარეშე არ მუშაობს — სწორედ აქ ჩანს ტოკენის აზრი.
-     */
     @Test(priority = 8,
           groups = {"regression", "api"},
           description = "PUT /booking/{id} ტოკენით — ჯავშნის განახლება")
@@ -311,7 +229,7 @@ public class BookingApiTest {
         updated.put("bookingdates", dates);
         updated.put("additionalneeds", "Late checkout");
 
-        authClient.authorizedRequest()                       // <-- ტოკენი აქ ჩაიდება
+        authClient.authorizedRequest()
                 .pathParam("id", bookingId)
                 .body(updated)
                 .when()
@@ -329,10 +247,6 @@ public class BookingApiTest {
         deleteBooking(bookingId);
     }
 
-    /**
-     * ტესტი 6.9 — <b>PUT ტოკენის გარეშე → 403 Forbidden</b>.
-     * ეს ადასტურებს, რომ ავტორიზაცია მართლაც მუშაობს.
-     */
     @Test(priority = 9,
           groups = {"regression", "api"},
           description = "PUT ტოკენის გარეშე → 403 (ავტორიზაცია მუშაობს)")
@@ -349,7 +263,7 @@ public class BookingApiTest {
         dates.put("checkout", RandomDataGenerator.daysFromNow(1));
         body.put("bookingdates", dates);
 
-        int statusCode = authClient.publicRequest()          // <-- ტოკენის გარეშე!
+        int statusCode = authClient.publicRequest()
                 .contentType(ContentType.JSON)
                 .pathParam("id", bookingId)
                 .body(body)
@@ -366,9 +280,6 @@ public class BookingApiTest {
         deleteBooking(bookingId);
     }
 
-    /**
-     * ტესტი 6.10 — <b>DELETE ტოკენით</b> და წაშლის დადასტურება.
-     */
     @Test(priority = 10,
           groups = {"regression", "api"},
           description = "DELETE /booking/{id} ტოკენით და წაშლის შემოწმება")
@@ -387,7 +298,6 @@ public class BookingApiTest {
         Assert.assertEquals(deleteStatus, 201,
                 "restful-booker წაშლისას 201-ს აბრუნებს");
 
-        // --- ვამოწმებთ, რომ მართლა წაიშალა ---
         int getStatus = authClient.publicRequest()
                 .pathParam("id", bookingId)
                 .when()
@@ -400,9 +310,6 @@ public class BookingApiTest {
                 "წაშლილი ჯავშანი ისევ ხელმისაწვდომია");
     }
 
-    /**
-     * ტესტი 6.11 — health check (GET /ping) + response headers.
-     */
     @Test(priority = 11,
           groups = {"smoke", "api"},
           description = "GET /ping — სერვისი ცოცხალია, headers ვალიდურია")
@@ -422,11 +329,6 @@ public class BookingApiTest {
                 "სერვისი ძალიან ნელია: " + response.time() + " ms");
     }
 
-    // =================================================================
-    //  დამხმარე მეთოდები
-    // =================================================================
-
-    /** ქმნის ჯავშანს და აბრუნებს მის id-ს. */
     private int createBooking(String firstName, String lastName, int price) {
         Map<String, Object> booking = new HashMap<>();
         booking.put("firstname", firstName);
@@ -449,7 +351,6 @@ public class BookingApiTest {
                     .extract().jsonPath().getInt("bookingid");
     }
 
-    /** შლის ჯავშანს (ტესტის შემდეგ დასუფთავება). */
     private void deleteBooking(int bookingId) {
         try {
             authClient.authorizedRequest()
@@ -457,12 +358,10 @@ public class BookingApiTest {
                     .when()
                     .delete(ConfigReader.get("api.booking.path") + "/{id}");
         } catch (Exception e) {
-            // დასუფთავების შეცდომამ ტესტი არ უნდა გააფუჭოს
             System.out.println("      (ჯავშნის " + bookingId + " წაშლა ვერ მოხერხდა)");
         }
     }
 
-    /** კითხულობს ფაილს src/test/resources-იდან. */
     private String readResourceFile(String path) {
         try (InputStream input = getClass().getClassLoader().getResourceAsStream(path)) {
             if (input == null) {

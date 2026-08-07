@@ -6,18 +6,6 @@ import org.testng.ITestContext;
 import org.testng.ITestListener;
 import org.testng.ITestResult;
 
-/**
- * TestListener — "უსმენს" ტესტების მსვლელობას და ლოგავს შედეგებს.
- *
- * <p><b>სილაბუსი, მე-15 / მე-20 ლექცია:</b> "ტესტირების შედეგების რეპორტების შექმნა".</p>
- *
- * <p><b>როგორ მუშაობს?</b><br>
- * TestNG თვითონ გვიძახებს ამ მეთოდებს: ტესტი დაიწყო → onTestStart,
- * წარმატებით დასრულდა → onTestSuccess, ჩავარდა → onTestFailure და ა.შ.
- * ჩვენ მხოლოდ ვწერთ, რა გვინდა რომ მოხდეს ამ მომენტებში.</p>
- *
- * <p>ეს კლასი testng.xml-ში არის მითითებული &lt;listeners&gt; ბლოკში.</p>
- */
 public class TestListener implements ITestListener {
 
     private static final String LINE = "-".repeat(70);
@@ -49,15 +37,12 @@ public class TestListener implements ITestListener {
             System.out.println("       მიზეზი: " + result.getThrowable().getMessage());
         }
 
-        // ჩავარდნისას სქრინშოტს ვიღებთ — მაგრამ მხოლოდ ვებ ტესტებზე.
-        // API ტესტებს ბრაუზერი არ აქვთ, ამიტომ try/catch გვჭირდება.
         try {
             String path = ScreenshotUtil.capture(DriverFactory.getDriver(), testName(result));
             if (path != null) {
                 System.out.println("       📸 სქრინშოტი: " + path);
             }
         } catch (IllegalStateException e) {
-            // ბრაუზერი არ არსებობს (API ტესტი) — ეს ნორმალურია, ვაგრძელებთ
             System.out.println("       (სქრინშოტი არ არის — ეს API ტესტია)");
         }
     }
@@ -88,8 +73,6 @@ public class TestListener implements ITestListener {
         }
         System.out.println(LINE);
     }
-
-    // ---------------- დამხმარე მეთოდები ----------------
 
     private String testName(ITestResult result) {
         return result.getTestClass().getRealClass().getSimpleName()
