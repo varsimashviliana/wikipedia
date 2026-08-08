@@ -15,9 +15,6 @@ public class PortalPage extends BasePage {
     @FindBy(id = "searchLanguage")
     private WebElement languageDropdown;
 
-    @FindBy(css = "button.pure-button-primary-progress")
-    private WebElement searchButton;
-
     @FindBy(id = "js-link-box-en")
     private WebElement englishLink;
 
@@ -38,13 +35,6 @@ public class PortalPage extends BasePage {
 
     public SearchResultsPage searchFor(String query) {
         typeAndEnter(searchInput, query);
-        waitUntilUrlDoesNotContain(ConfigReader.get("portal.url"));
-        return new SearchResultsPage(driver);
-    }
-
-    public SearchResultsPage searchUsingButton(String query) {
-        type(searchInput, query);
-        click(searchButton);
         waitUntilUrlDoesNotContain(ConfigReader.get("portal.url"));
         return new SearchResultsPage(driver);
     }
@@ -75,10 +65,6 @@ public class PortalPage extends BasePage {
     public PortalPage hoverOverEnglish() {
         hoverOver(englishLink);
         return this;
-    }
-
-    public void goToEnglishWikipedia() {
-        click(englishLink);
     }
 
     public int getFeaturedLanguageCount() {

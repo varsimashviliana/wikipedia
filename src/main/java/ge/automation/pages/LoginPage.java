@@ -73,11 +73,6 @@ public class LoginPage extends BasePage {
         return this;
     }
 
-    public LoginPage uncheckRememberMe() {
-        setCheckbox(rememberMeCheckbox, rememberMeLabel, false);
-        return this;
-    }
-
     public boolean isRememberMeSelected() {
         return rememberMeCheckbox.isSelected();
     }

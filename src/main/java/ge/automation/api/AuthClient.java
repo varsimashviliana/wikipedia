@@ -65,10 +65,6 @@ public class AuthClient {
         return token;
     }
 
-    public String getBaseUrl() {
-        return baseUrl;
-    }
-
     public RequestSpecification authorizedRequest() {
         return RestAssured
                 .given()

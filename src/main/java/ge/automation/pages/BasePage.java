@@ -1,7 +1,6 @@
 package ge.automation.pages;
 
 import ge.automation.config.ConfigReader;
-import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.NoSuchElementException;
@@ -11,7 +10,6 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.FluentWait;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -59,20 +57,6 @@ public abstract class BasePage {
                             + "arguments[0].style.visibility = 'visible';", element);
         }
         return element;
-    }
-
-    protected WebElement fluentWaitFor(By locator) {
-        FluentWait<WebDriver> fluentWait = new FluentWait<>(driver)
-                .withTimeout(Duration.ofSeconds(ConfigReader.getInt("fluent.wait.timeout")))
-                .pollingEvery(Duration.ofSeconds(ConfigReader.getInt("fluent.wait.polling")))
-                .ignoring(NoSuchElementException.class)
-                .ignoring(StaleElementReferenceException.class);
-
-        return fluentWait.until(d -> d.findElement(locator));
-    }
-
-    protected boolean waitUntilUrlContains(String part) {
-        return wait.until(ExpectedConditions.urlContains(part));
     }
 
     protected boolean waitUntilUrlDoesNotContain(String part) {
@@ -162,10 +146,6 @@ public abstract class BasePage {
     protected void scrollToElement(WebElement element) {
         ((JavascriptExecutor) driver)
                 .executeScript("arguments[0].scrollIntoView({block:'center'});", element);
-    }
-
-    public String getPageTitle() {
-        return driver.getTitle();
     }
 
     public String getCurrentUrl() {

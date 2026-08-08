@@ -19,12 +19,6 @@ public class SearchResultsPage extends BasePage {
     @FindBy(css = ".results-info")
     private WebElement resultsInfo;
 
-    @FindBy(css = "input[name='search']")
-    private WebElement searchBox;
-
-    @FindBy(css = "button[type='submit']")
-    private WebElement searchSubmitButton;
-
     public SearchResultsPage(WebDriver driver) {
         super(driver);
     }
@@ -67,10 +61,5 @@ public class SearchResultsPage extends BasePage {
 
     public boolean isNoResultsMessageDisplayed() {
         return !driver.findElements(By.cssSelector(".mw-search-nonefound")).isEmpty();
-    }
-
-    public SearchResultsPage searchAgain(String query) {
-        typeAndEnter(searchBox, query);
-        return new SearchResultsPage(driver);
     }
 }
