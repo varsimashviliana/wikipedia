@@ -24,6 +24,8 @@
 
         <surefire.version>3.5.6</surefire.version>
         <compiler.plugin.version>3.14.1</compiler.plugin.version>
+
+        <surefire.argLine>-Dfile.encoding=UTF-8 -Dstdout.encoding=UTF-8</surefire.argLine>
     </properties>
 
     <dependencies>
@@ -80,24 +82,4 @@
             </plugin>
         </plugins>
     </build>
-    <profiles>
-        <profile>
-            <id>windows-truststore</id>
-            <activation>
-                <os><family>windows</family></os>
-            </activation>
-            <properties>
-                <surefire.argLine>-Djavax.net.ssl.trustStoreType=WINDOWS-ROOT -Dfile.encoding=UTF-8 -Dstdout.encoding=UTF-8 -Dstderr.encoding=UTF-8</surefire.argLine>
-            </properties>
-        </profile>
-        <profile>
-            <id>default-truststore</id>
-            <activation>
-                <os><family>!windows</family></os>
-            </activation>
-            <properties>
-                <surefire.argLine>-Dfile.encoding=UTF-8 -Dstdout.encoding=UTF-8 -Dstderr.encoding=UTF-8</surefire.argLine>
-            </properties>
-        </profile>
-    </profiles>
 </project>

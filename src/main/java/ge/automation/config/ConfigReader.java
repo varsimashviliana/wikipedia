@@ -45,11 +45,6 @@ public final class ConfigReader {
         return value;
     }
 
-    public static String getOrDefault(String key, String defaultValue) {
-        String value = lookup(key);
-        return (value == null) ? defaultValue : value;
-    }
-
     public static boolean has(String key) {
         return lookup(key) != null;
     }

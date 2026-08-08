@@ -27,7 +27,6 @@ public abstract class BasePage {
 
         this.wait = new WebDriverWait(
                 driver, Duration.ofSeconds(ConfigReader.getInt("explicit.wait")));
-        this.wait.ignoring(StaleElementReferenceException.class);
 
         this.actions = new Actions(driver);
 

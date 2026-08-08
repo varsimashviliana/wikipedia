@@ -3,7 +3,6 @@ package ge.automation.tests.web;
 import ge.automation.config.ConfigReader;
 import ge.automation.pages.LoginPage;
 import ge.automation.tests.BaseTest;
-import org.openqa.selenium.TimeoutException;
 import org.testng.Assert;
 import org.testng.SkipException;
 import org.testng.annotations.BeforeMethod;
@@ -27,14 +26,12 @@ public class LoginTest extends BaseTest {
                 ConfigReader.get("invalid.username"),
                 ConfigReader.get("invalid.password"));
 
-        String error;
-        try {
-            error = loginPage.getErrorMessage();
-        } catch (TimeoutException e) {
-            skipIfCaptchaBlocked();
-            throw new AssertionError("არასწორი მონაცემებით შეცდომა არ გამოჩნდა", e);
-        }
+        skipIfCaptchaBlocked();
 
+        Assert.assertTrue(loginPage.isErrorDisplayed(),
+                "არასწორი მონაცემებით შეცდომა არ გამოჩნდა");
+
+        String error = loginPage.getErrorMessage();
         System.out.println("      შეცდომა: " + error);
 
         Assert.assertTrue(error.contains(ConfigReader.get("login.error.message")),
@@ -61,9 +58,7 @@ public class LoginTest extends BaseTest {
 
         loginPage.loginWith(username, password);
 
-        if (!loginPage.isErrorDisplayed()) {
-            skipIfCaptchaBlocked();
-        }
+        skipIfCaptchaBlocked();
 
         Assert.assertTrue(loginPage.isErrorDisplayed(),
                 "'" + caseName + "' — შეცდომა არ გამოჩნდა, თუმცა უნდა გამოჩენილიყო");
