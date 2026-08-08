@@ -93,9 +93,9 @@ public class LoginTest extends BaseTest {
     @DataProvider(name = "invalidCredentials")
     public Object[][] invalidCredentials() {
         return new Object[][]{
-                {"NoSuchUser_aaa111", "wrongPassword1", "არარსებული მომხმარებელი"},
-                {"NoSuchUser_bbb222", "12345",          "მოკლე პაროლი"},
-                {"!!!invalid!!!",     "somePassword",   "დაუშვებელი სიმბოლოები სახელში"}
+                {"AnaVarsimashviliQA1001", "WrongPassword2026!", "არარსებული მომხმარებელი"},
+                {"AnaVarsimashviliQA1002", "12345",              "მოკლე პაროლი"},
+                {"!!!AnaVarsimashvili!!!", "WrongPassword2026!", "დაუშვებელი სიმბოლოები სახელში"}
         };
     }
 

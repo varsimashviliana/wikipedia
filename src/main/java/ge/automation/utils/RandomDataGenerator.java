@@ -13,11 +13,11 @@ public final class RandomDataGenerator {
     }
 
     public static String username() {
-        return "QaUser" + randomLetters(4) + randomNumber(4);
+        return "AnaVarsimashvili" + randomNumber(5);
     }
 
     public static String email() {
-        return "qa.test." + randomNumber(6) + "@example.com";
+        return "ana.varsimashvili." + randomNumber(6) + "@example.com";
     }
 
     public static String password() {
@@ -25,12 +25,12 @@ public final class RandomDataGenerator {
     }
 
     public static String firstName() {
-        String[] names = {"Nika", "Ana", "Giorgi", "Mariam", "Luka", "Elene", "Saba", "Tamar"};
+        String[] names = {"Ana", "Nika", "Giorgi", "Mariam", "Luka", "Elene", "Saba", "Tamar"};
         return names[RANDOM.nextInt(names.length)];
     }
 
     public static String lastName() {
-        String[] names = {"Beridze", "Kapanadze", "Lomidze", "Gelashvili", "Maisuradze"};
+        String[] names = {"Varsimashvili", "Beridze", "Kapanadze", "Lomidze", "Gelashvili"};
         return names[RANDOM.nextInt(names.length)];
     }
 

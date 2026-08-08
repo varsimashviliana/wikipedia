@@ -21,15 +21,15 @@ public class SearchTest extends BaseTest {
         Assert.assertTrue(portal.isPageOpened(),
                 "პორტალის გვერდი არ გაიხსნა");
 
-        portal.searchFor("Selenium");
+        portal.searchFor("Tbilisi");
 
         String url = driver.getCurrentUrl();
         Assert.assertTrue(url.contains("wikipedia.org"),
                 "ძებნის შემდეგ ვიკიპედიაზე არ გადავედით. URL: " + url);
 
         String title = driver.getTitle();
-        Assert.assertTrue(title.toLowerCase().contains("selenium"),
-                "გვერდის სათაურში 'Selenium' არ არის. სათაური: " + title);
+        Assert.assertTrue(title.toLowerCase().contains("tbilisi"),
+                "გვერდის სათაურში 'Tbilisi' არ არის. სათაური: " + title);
     }
 
     @Test(priority = 2,
@@ -56,7 +56,7 @@ public class SearchTest extends BaseTest {
           groups = {"regression", "search"},
           description = "ძებნის შედეგიდან სტატიის გახსნა")
     public void openArticleFromSearchResults() {
-        openSearchResults("Selenium software");
+        openSearchResults("Selenium (software)");
 
         SearchResultsPage results = new SearchResultsPage(driver);
         Assert.assertTrue(results.getResultCount() > 0, "შედეგები ცარიელია");
@@ -79,7 +79,7 @@ public class SearchTest extends BaseTest {
           groups = {"regression", "search"},
           description = "არარსებული სიტყვის ძებნა — შედეგი არ უნდა იყოს")
     public void searchForNonExistentTermShowsNoResults() {
-        openSearchResults("zzxqwlkjhgfdsapoiuytrewq12345");
+        openSearchResults("Ana Varsimashvili QaAutomation99887");
 
         SearchResultsPage results = new SearchResultsPage(driver);
 
@@ -93,9 +93,9 @@ public class SearchTest extends BaseTest {
     @DataProvider(name = "searchTerms")
     public Object[][] searchTerms() {
         return new Object[][]{
-                {"Java"},
-                {"Python"},
-                {"JavaScript"}
+                {"Tbilisi"},
+                {"Georgian language"},
+                {"Test automation"}
         };
     }
 

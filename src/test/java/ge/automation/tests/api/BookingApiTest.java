@@ -196,8 +196,8 @@ public class BookingApiTest {
                 .then()
                     .statusCode(200)
                     .body("bookingid", notNullValue())
-                    .body("booking.firstname", equalTo("Nino"))
-                    .body("booking.lastname", equalTo("Beridze"))
+                    .body("booking.firstname", equalTo("Ana"))
+                    .body("booking.lastname", equalTo("Varsimashvili"))
                     .body("booking.totalprice", equalTo(250))
                     .extract().response();
 
