@@ -29,6 +29,7 @@ public abstract class BasePage {
 
         this.wait = new WebDriverWait(
                 driver, Duration.ofSeconds(ConfigReader.getInt("explicit.wait")));
+        this.wait.ignoring(StaleElementReferenceException.class);
 
         this.actions = new Actions(driver);
 
@@ -129,6 +130,17 @@ public abstract class BasePage {
 
     protected String getSelectedOption(WebElement selectElement) {
         return optionText(new Select(revealElement(selectElement)).getFirstSelectedOption());
+    }
+
+    protected String readDomProperty(WebElement element, String property) {
+        return wait.until(driver -> {
+            try {
+                String value = element.getDomProperty(property);
+                return value == null ? "" : value;
+            } catch (StaleElementReferenceException e) {
+                return null;
+            }
+        });
     }
 
     protected String optionText(WebElement option) {

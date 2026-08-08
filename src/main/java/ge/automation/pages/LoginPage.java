@@ -2,6 +2,7 @@ package ge.automation.pages;
 
 import ge.automation.config.ConfigReader;
 import org.openqa.selenium.By;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -90,15 +91,20 @@ public class LoginPage extends BasePage {
     }
 
     public boolean isLoginFormDisplayed() {
-        return isDisplayed(loginForm);
+        try {
+            waitUntilVisible(loginForm);
+            return true;
+        } catch (TimeoutException e) {
+            return false;
+        }
     }
 
     public boolean isUsernameRequired() {
-        return "true".equals(usernameInput.getDomProperty("required"));
+        return "true".equals(readDomProperty(usernameInput, "required"));
     }
 
     public String getUsernameValue() {
-        return usernameInput.getDomProperty("value");
+        return readDomProperty(usernameInput, "value");
     }
 
     public CreateAccountPage goToCreateAccount() {
