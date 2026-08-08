@@ -1,45 +1,31 @@
-# ===== Maven =====
 target/
 pom.xml.versionsBackup
-.mvn/
-mvnw
-mvnw.cmd
 
-# ===== ტესტების შედეგები =====
 test-output/
 *.log
 screenshots/
 
-# ===== IDE =====
-# IntelliJ IDEA
 .idea/
 *.iml
 *.iws
 *.ipr
 out/
 
-# Eclipse
 .classpath
 .project
 .settings/
 bin/
 
-# VS Code
 .vscode/
 
-# ===== ოპერაციული სისტემა =====
 .DS_Store
 Thumbs.db
 desktop.ini
 
-# ===== დრაივერები =====
-# ბრაუზერის დრაივერები არ უნდა ავიტვირთოთ — ისინი ავტომატურად ჩამოიტვირთება
 *.exe
 chromedriver*
 geckodriver*
 msedgedriver*
 
-# ===== საიდუმლო მონაცემები =====
-# თუ ლოკალურ პაროლებს ცალკე ფაილში ინახავ
 config.local.properties
 secrets.properties
