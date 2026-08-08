@@ -1,6 +1,7 @@
 package ge.automation.pages;
 
 import ge.automation.config.ConfigReader;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -44,6 +45,40 @@ public class CreateAccountPage extends BasePage {
                 && isDisplayed(retypePasswordInput)
                 && isDisplayed(emailInput)
                 && isDisplayed(createAccountButton);
+    }
+
+    private boolean isPropertyTrue(WebElement element, String propertyName) {
+        return "true".equalsIgnoreCase(element.getDomProperty(propertyName));
+    }
+
+    public boolean isUsernameRequired() {
+        return isPropertyTrue(usernameInput, "required");
+    }
+
+    public boolean isPasswordRequired() {
+        return isPropertyTrue(passwordInput, "required");
+    }
+
+    public boolean isRetypeRequired() {
+        return isPropertyTrue(retypePasswordInput, "required");
+    }
+
+    public boolean isEmailRequired() {
+        return isPropertyTrue(emailInput, "required");
+    }
+
+    public String getPasswordFieldType() {
+        return passwordInput.getDomAttribute("type");
+    }
+
+    public String getEmailFieldType() {
+        return emailInput.getDomAttribute("type");
+    }
+
+    public boolean isCaptchaPresent() {
+        return !driver.findElements(
+                By.cssSelector("[class*='h-captcha'], [data-hcaptcha-widget-id], iframe[src*='hcaptcha']")
+        ).isEmpty();
     }
 
     public boolean isSubmitButtonEnabled() {
