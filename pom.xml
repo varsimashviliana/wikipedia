@@ -87,7 +87,7 @@
                 <os><family>windows</family></os>
             </activation>
             <properties>
-                <surefire.argLine>-Djavax.net.ssl.trustStoreType=WINDOWS-ROOT</surefire.argLine>
+                <surefire.argLine>-Djavax.net.ssl.trustStoreType=WINDOWS-ROOT -Dfile.encoding=UTF-8 -Dstdout.encoding=UTF-8 -Dstderr.encoding=UTF-8</surefire.argLine>
             </properties>
         </profile>
         <profile>
@@ -96,7 +96,7 @@
                 <os><family>!windows</family></os>
             </activation>
             <properties>
-                <surefire.argLine>-Dfile.encoding=UTF-8</surefire.argLine>
+                <surefire.argLine>-Dfile.encoding=UTF-8 -Dstdout.encoding=UTF-8 -Dstderr.encoding=UTF-8</surefire.argLine>
             </properties>
         </profile>
     </profiles>
