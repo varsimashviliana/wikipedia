@@ -3,6 +3,7 @@ package ge.automation.tests.web;
 import ge.automation.config.ConfigReader;
 import ge.automation.pages.LoginPage;
 import ge.automation.tests.BaseTest;
+import org.openqa.selenium.TimeoutException;
 import org.testng.Assert;
 import org.testng.SkipException;
 import org.testng.asserts.SoftAssert;
@@ -44,10 +45,14 @@ public class LoginTest extends BaseTest {
                 ConfigReader.get("invalid.username"),
                 ConfigReader.get("invalid.password"));
 
-        Assert.assertTrue(loginPage.isErrorDisplayed(),
-                "არასწორი მონაცემებით შეცდომა არ გამოჩნდა");
+        String error;
+        try {
+            error = loginPage.getErrorMessage();
+        } catch (TimeoutException e) {
+            skipIfCaptchaBlocked();
+            throw new AssertionError("არასწორი მონაცემებით შეცდომა არ გამოჩნდა", e);
+        }
 
-        String error = loginPage.getErrorMessage();
         System.out.println("      შეცდომა: " + error);
 
         Assert.assertTrue(error.contains(ConfigReader.get("login.error.message")),
@@ -108,8 +113,22 @@ public class LoginTest extends BaseTest {
 
         loginPage.loginWith(username, password);
 
+        if (!loginPage.isErrorDisplayed()) {
+            skipIfCaptchaBlocked();
+        }
+
         Assert.assertTrue(loginPage.isErrorDisplayed(),
                 "'" + caseName + "' — შეცდომა არ გამოჩნდა, თუმცა უნდა გამოჩენილიყო");
+    }
+
+    private void skipIfCaptchaBlocked() {
+        if (loginPage.isCaptchaPresent()) {
+            throw new SkipException(
+                    "გამოტოვებულია: ვიკიპედიამ hCaptcha გამოიტანა, ამიტომ ლოგინი ვერ დამუშავდა "
+                            + "და შეცდომის შეტყობინება ვერ გამოჩნდა. ეს ანტი-ბოტ დაცვაა, რომელიც "
+                            + "ერთი IP-დან განმეორებითი წარუმატებელი ლოგინების შემდეგ ირთვება. "
+                            + "ცოტა ხნის შემდეგ ხელახლა გაშვება დაეხმარება.");
+        }
     }
 
     @Test(priority = 6,

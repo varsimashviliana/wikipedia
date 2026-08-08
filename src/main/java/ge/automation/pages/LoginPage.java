@@ -86,6 +86,12 @@ public class LoginPage extends BasePage {
         return !driver.findElements(By.cssSelector(".cdx-message--error")).isEmpty();
     }
 
+    public boolean isCaptchaPresent() {
+        return !driver.findElements(
+                By.cssSelector("[class*='h-captcha'], [data-hcaptcha-widget-id], iframe[src*='hcaptcha']")
+        ).isEmpty();
+    }
+
     public String getErrorMessage() {
         return getText(errorMessage);
     }
