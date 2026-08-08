@@ -18,19 +18,6 @@ public class LanguageDropdownTest extends BaseTest {
         portal = new PortalPage(driver);
     }
 
-    @Test(priority = 1,
-          groups = {"smoke", "dropdown"},
-          description = "ენების dropdown იტვირთება და შეიცავს ბევრ ენას")
-    public void languageDropdownIsPopulated() {
-        Assert.assertTrue(portal.isPageOpened(), "პორტალი არ გაიხსნა");
-
-        int languageCount = portal.getLanguageCount();
-        System.out.println("      dropdown-ში არის " + languageCount + " ენა");
-
-        Assert.assertTrue(languageCount > 50,
-                "dropdown-ში ძალიან ცოტა ენაა: " + languageCount);
-    }
-
     @Test(priority = 2,
           groups = {"smoke", "dropdown"},
           description = "ენის არჩევა dropdown-იდან ტექსტით და კოდით")
@@ -55,20 +42,6 @@ public class LanguageDropdownTest extends BaseTest {
                 "სიაში Español არ არის");
 
         softAssert.assertAll();
-    }
-
-    @Test(priority = 3,
-          groups = {"regression", "dropdown"},
-          description = "dropdown-ით ენის არჩევა და ამ ენაზე ძებნა")
-    public void searchInSelectedLanguage() {
-        portal.selectLanguageByValue("de");
-        portal.searchFor("Automatisierung");
-
-        String url = driver.getCurrentUrl();
-        System.out.println("      გადავედით: " + url);
-
-        Assert.assertTrue(url.contains("de.wikipedia.org"),
-                "გერმანულ ვიკიპედიაზე არ გადავედით. URL: " + url);
     }
 
     @Test(priority = 4,

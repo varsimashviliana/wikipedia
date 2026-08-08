@@ -53,10 +53,6 @@ public class PortalPage extends BasePage {
         return getSelectedOption(languageDropdown);
     }
 
-    public int getLanguageCount() {
-        return getSelectOptions(languageDropdown).size();
-    }
-
     public boolean hasLanguageOption(String visibleText) {
         return getSelectOptions(languageDropdown).stream()
                 .anyMatch(option -> optionText(option).equalsIgnoreCase(visibleText));

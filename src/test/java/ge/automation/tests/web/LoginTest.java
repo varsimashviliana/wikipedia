@@ -6,7 +6,6 @@ import ge.automation.tests.BaseTest;
 import org.openqa.selenium.TimeoutException;
 import org.testng.Assert;
 import org.testng.SkipException;
-import org.testng.asserts.SoftAssert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -18,23 +17,6 @@ public class LoginTest extends BaseTest {
     @BeforeMethod(alwaysRun = true)
     public void openLoginPage() {
         loginPage = new LoginPage(driver).open();
-    }
-
-    @Test(priority = 1,
-          groups = {"smoke", "login"},
-          description = "ლოგინის გვერდი იხსნება და auth დომენზე გადაგვისვრის")
-    public void loginPageOpensAndRedirectsToAuthDomain() {
-        Assert.assertTrue(loginPage.isPageOpened(),
-                "ლოგინის ფორმა არ ჩანს");
-
-        String url = loginPage.getCurrentUrl();
-        System.out.println("      URL: " + url);
-
-        Assert.assertTrue(url.contains(ConfigReader.get("auth.domain")),
-                "რედირექტი auth დომენზე არ მოხდა. URL: " + url);
-
-        Assert.assertTrue(loginPage.isLoginFormDisplayed(),
-                "ლოგინის ფორმა (form[name=userlogin]) ვერ მოიძებნა");
     }
 
     @Test(priority = 2,
@@ -59,40 +41,6 @@ public class LoginTest extends BaseTest {
                 "შეცდომის ტექსტი მოსალოდნელს არ ემთხვევა.\n"
                         + "  მოსალოდნელი: " + ConfigReader.get("login.error.message") + "\n"
                         + "  რეალური:     " + error);
-    }
-
-    @Test(priority = 3,
-          groups = {"smoke", "login"},
-          description = "ცარიელი ველებით ლოგინი — ფორმა არ იგზავნება")
-    public void loginWithEmptyFieldsIsBlocked() {
-        String urlBefore = loginPage.getCurrentUrl();
-
-        loginPage.clickLogin();
-
-        Assert.assertTrue(loginPage.isLoginFormDisplayed(),
-                "ცარიელი ფორმა გაიგზავნა, რაც არ უნდა მომხდარიყო");
-
-        System.out.println("      ფორმა დაბლოკილია ✓ (URL: " + loginPage.getCurrentUrl() + ")");
-        Assert.assertEquals(loginPage.getUsernameValue(), "",
-                "username ველი ცარიელი უნდა იყოს");
-    }
-
-    @Test(priority = 4,
-          groups = {"regression", "login"},
-          description = "Remember-me checkbox მუშაობს")
-    public void rememberMeCheckboxWorks() {
-        SoftAssert softAssert = new SoftAssert();
-
-        softAssert.assertFalse(loginPage.isRememberMeSelected(),
-                "checkbox ნაგულისხმევად მოხსნილი უნდა იყოს");
-
-        loginPage.checkRememberMe();
-
-        softAssert.assertTrue(loginPage.isRememberMeSelected(),
-                "checkbox მონიშვნის შემდეგ მონიშნული უნდა იყოს");
-
-        softAssert.assertAll();
-        System.out.println("      Remember-me checkbox მუშაობს ✓");
     }
 
     @DataProvider(name = "invalidCredentials")

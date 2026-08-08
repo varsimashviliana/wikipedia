@@ -116,17 +116,6 @@ public abstract class BasePage {
         return optionText(new Select(revealElement(selectElement)).getFirstSelectedOption());
     }
 
-    protected String readDomProperty(WebElement element, String property) {
-        return wait.until(driver -> {
-            try {
-                String value = element.getDomProperty(property);
-                return value == null ? "" : value;
-            } catch (StaleElementReferenceException e) {
-                return null;
-            }
-        });
-    }
-
     protected String optionText(WebElement option) {
         String text = option.getDomProperty("text");
         return text == null ? "" : text.trim();

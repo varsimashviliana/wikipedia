@@ -6,7 +6,6 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class SearchResultsPage extends BasePage {
 
@@ -15,9 +14,6 @@ public class SearchResultsPage extends BasePage {
 
     @FindBy(css = ".mw-search-result-heading a")
     private List<WebElement> resultTitles;
-
-    @FindBy(css = ".results-info")
-    private WebElement resultsInfo;
 
     public SearchResultsPage(WebDriver driver) {
         super(driver);
@@ -30,22 +26,6 @@ public class SearchResultsPage extends BasePage {
 
     public int getResultCount() {
         return resultItems.size();
-    }
-
-    public List<String> getResultTitles() {
-        return resultTitles.stream()
-                .map(WebElement::getText)
-                .map(String::trim)
-                .collect(Collectors.toList());
-    }
-
-    public String getResultsInfoText() {
-        return getText(resultsInfo);
-    }
-
-    public boolean anyResultContains(String keyword) {
-        return getResultTitles().stream()
-                .anyMatch(title -> title.toLowerCase().contains(keyword.toLowerCase()));
     }
 
     public ArticlePage openResult(int index) {

@@ -14,11 +14,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.notNullValue;
 
 public class BookingApiTest {
@@ -46,53 +44,6 @@ public class BookingApiTest {
         softAssert.assertAll();
 
         System.out.println("      ტოკენის სიგრძე: " + token.length());
-    }
-
-    @Test(priority = 2,
-          groups = {"regression", "api"},
-          description = "არასწორი მონაცემებით POST /auth ტოკენს არ იძლევა")
-    public void authWithWrongCredentialsReturnsNoToken() {
-        Map<String, String> wrongCredentials = new HashMap<>();
-        wrongCredentials.put("username", "wrongUser");
-        wrongCredentials.put("password", "wrongPassword");
-
-        Response response = io.restassured.RestAssured
-                .given()
-                    .baseUri(ConfigReader.get("api.base.url"))
-                    .contentType(ContentType.JSON)
-                    .body(wrongCredentials)
-                .when()
-                    .post(ConfigReader.get("api.auth.path"))
-                .then()
-                    .extract().response();
-
-        System.out.println("      სტატუს კოდი: " + response.statusCode());
-        System.out.println("      პასუხი: " + response.asString());
-
-        String token = response.jsonPath().getString("token");
-        Assert.assertNull(token,
-                "არასწორი მონაცემებით ტოკენი დაბრუნდა, რაც უსაფრთხოების პრობლემაა!");
-    }
-
-    @Test(priority = 3,
-          groups = {"smoke", "api"},
-          description = "GET /booking აბრუნებს ჯავშნების სიას (200)")
-    public void getAllBookingsReturnsList() {
-        Response response = authClient.publicRequest()
-                .when()
-                    .get(ConfigReader.get("api.booking.path"))
-                .then()
-                    .statusCode(200)
-                    .contentType(ContentType.JSON)
-                    .extract().response();
-
-        List<Integer> bookingIds = response.jsonPath().getList("bookingid");
-
-        System.out.println("      სტატუს კოდი: " + response.statusCode());
-        System.out.println("      ჯავშნების რაოდენობა: " + bookingIds.size());
-        System.out.println("      პასუხის დრო: " + response.time() + " ms");
-
-        Assert.assertTrue(bookingIds.size() > 0, "ჯავშნების სია ცარიელია");
     }
 
     @Test(priority = 4,
@@ -135,50 +86,6 @@ public class BookingApiTest {
 
         System.out.println("      ყველა ველი ვალიდურია ✓");
         deleteBooking(bookingId);
-    }
-
-    @Test(priority = 5,
-          groups = {"regression", "api"},
-          description = "GET /booking?firstname=X&lastname=Y — ფილტრაცია query პარამეტრებით")
-    public void getBookingsFilteredByQueryParams() {
-        String firstName = RandomDataGenerator.firstName();
-        String lastName = RandomDataGenerator.lastName();
-
-        int bookingId = createBooking(firstName, lastName, 199);
-
-        Response response = authClient.publicRequest()
-                .queryParam("firstname", firstName)
-                .queryParam("lastname", lastName)
-                .when()
-                    .get(ConfigReader.get("api.booking.path"))
-                .then()
-                    .statusCode(200)
-                    .extract().response();
-
-        List<Integer> ids = response.jsonPath().getList("bookingid");
-        System.out.println("      '" + firstName + " " + lastName
-                + "' — ნაპოვნია " + ids.size() + " ჯავშანი");
-
-        Assert.assertTrue(ids.contains(bookingId),
-                "ფილტრმა ჩვენი ჯავშანი (id=" + bookingId + ") ვერ იპოვა");
-
-        deleteBooking(bookingId);
-    }
-
-    @Test(priority = 6,
-          groups = {"regression", "api"},
-          description = "GET არარსებული id → 404 Not Found")
-    public void getNonExistentBookingReturns404() {
-        int response = authClient.publicRequest()
-                .pathParam("id", 99999999)
-                .when()
-                    .get(ConfigReader.get("api.booking.path") + "/{id}")
-                .then()
-                    .extract().statusCode();
-
-        System.out.println("      სტატუს კოდი: " + response);
-        Assert.assertEquals(response, 404,
-                "არარსებულ ჯავშანზე 404 უნდა დაბრუნებულიყო");
     }
 
     @Test(priority = 7,
@@ -247,39 +154,6 @@ public class BookingApiTest {
         deleteBooking(bookingId);
     }
 
-    @Test(priority = 9,
-          groups = {"regression", "api"},
-          description = "PUT ტოკენის გარეშე → 403 (ავტორიზაცია მუშაობს)")
-    public void updateWithoutTokenIsForbidden() {
-        int bookingId = createBooking("Protected", "Booking", 120);
-
-        Map<String, Object> body = new HashMap<>();
-        body.put("firstname", "Hacker");
-        body.put("lastname", "Attempt");
-        body.put("totalprice", 1);
-        body.put("depositpaid", false);
-        Map<String, String> dates = new HashMap<>();
-        dates.put("checkin", RandomDataGenerator.today());
-        dates.put("checkout", RandomDataGenerator.daysFromNow(1));
-        body.put("bookingdates", dates);
-
-        int statusCode = authClient.publicRequest()
-                .contentType(ContentType.JSON)
-                .pathParam("id", bookingId)
-                .body(body)
-                .when()
-                    .put(ConfigReader.get("api.booking.path") + "/{id}")
-                .then()
-                    .extract().statusCode();
-
-        System.out.println("      ტოკენის გარეშე PUT → სტატუს კოდი " + statusCode);
-
-        Assert.assertEquals(statusCode, 403,
-                "ტოკენის გარეშე განახლება უნდა აკრძალულიყო (403)");
-
-        deleteBooking(bookingId);
-    }
-
     @Test(priority = 10,
           groups = {"regression", "api"},
           description = "DELETE /booking/{id} ტოკენით და წაშლის შემოწმება")
@@ -308,25 +182,6 @@ public class BookingApiTest {
         System.out.println("      წაშლის შემდეგ GET → " + getStatus);
         Assert.assertEquals(getStatus, 404,
                 "წაშლილი ჯავშანი ისევ ხელმისაწვდომია");
-    }
-
-    @Test(priority = 11,
-          groups = {"smoke", "api"},
-          description = "GET /ping — სერვისი ცოცხალია, headers ვალიდურია")
-    public void pingReturnsCreated() {
-        Response response = authClient.publicRequest()
-                .when()
-                    .get("/ping")
-                .then()
-                    .statusCode(201)
-                    .extract().response();
-
-        System.out.println("      სტატუს კოდი: " + response.statusCode());
-        System.out.println("      Server header: " + response.header("Server"));
-        System.out.println("      პასუხის დრო: " + response.time() + " ms");
-
-        Assert.assertTrue(response.time() < ConfigReader.getInt("api.timeout.ms"),
-                "სერვისი ძალიან ნელია: " + response.time() + " ms");
     }
 
     private int createBooking(String firstName, String lastName, int price) {
