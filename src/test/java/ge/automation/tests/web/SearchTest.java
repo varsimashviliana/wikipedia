@@ -6,6 +6,7 @@ import ge.automation.pages.PortalPage;
 import ge.automation.pages.SearchResultsPage;
 import ge.automation.tests.BaseTest;
 import org.testng.Assert;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 public class SearchTest extends BaseTest {
@@ -67,6 +68,30 @@ public class SearchTest extends BaseTest {
 
         Assert.assertTrue(noResults,
                 "არარსებულ სიტყვაზე შედეგები დაბრუნდა, რაც არ უნდა მომხდარიყო");
+    }
+
+    @DataProvider(name = "searchTerms")
+    public Object[][] searchTerms() {
+        return new Object[][]{
+                {"Tbilisi"},
+                {"Georgian language"},
+                {"Test automation"}
+        };
+    }
+
+    @Test(priority = 5,
+          groups = {"regression", "search"},
+          dataProvider = "searchTerms",
+          description = "სხვადასხვა სიტყვის ძებნა DataProvider-ით")
+    public void searchDifferentTerms(String term) {
+        openSearchResults(term);
+
+        SearchResultsPage results = new SearchResultsPage(driver);
+
+        Assert.assertTrue(results.getResultCount() > 0,
+                "'" + term + "'-ზე შედეგი არ მოიძებნა");
+
+        System.out.println("      '" + term + "' → " + results.getResultCount() + " შედეგი");
     }
 
     private void openSearchResults(String query) {

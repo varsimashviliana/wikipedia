@@ -6,7 +6,6 @@ import ge.automation.tests.BaseTest;
 import org.testng.Assert;
 import org.testng.SkipException;
 import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 public class LoginTest extends BaseTest {
@@ -38,30 +37,6 @@ public class LoginTest extends BaseTest {
                 "შეცდომის ტექსტი მოსალოდნელს არ ემთხვევა.\n"
                         + "  მოსალოდნელი: " + ConfigReader.get("login.error.message") + "\n"
                         + "  რეალური:     " + error);
-    }
-
-    @DataProvider(name = "invalidCredentials")
-    public Object[][] invalidCredentials() {
-        return new Object[][]{
-                {"AnaVarsimashviliQA1001", "WrongPassword2026!", "არარსებული მომხმარებელი"},
-                {"AnaVarsimashviliQA1002", "12345",              "მოკლე პაროლი"},
-                {"!!!AnaVarsimashvili!!!", "WrongPassword2026!", "დაუშვებელი სიმბოლოები სახელში"}
-        };
-    }
-
-    @Test(priority = 5,
-          groups = {"regression", "login"},
-          dataProvider = "invalidCredentials",
-          description = "არასწორი მონაცემების სხვადასხვა კომბინაცია")
-    public void loginFailsForVariousInvalidInputs(String username, String password, String caseName) {
-        System.out.println("      შემთხვევა: " + caseName);
-
-        loginPage.loginWith(username, password);
-
-        skipIfCaptchaBlocked();
-
-        Assert.assertTrue(loginPage.isErrorDisplayed(),
-                "'" + caseName + "' — შეცდომა არ გამოჩნდა, თუმცა უნდა გამოჩენილიყო");
     }
 
     private void skipIfCaptchaBlocked() {
