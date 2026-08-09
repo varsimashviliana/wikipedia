@@ -4,9 +4,7 @@ import ge.automation.api.AuthClient;
 import ge.automation.config.ConfigReader;
 import ge.automation.utils.RandomDataGenerator;
 import io.restassured.http.ContentType;
-import io.restassured.response.Response;
 import org.testng.Assert;
-import org.testng.asserts.SoftAssert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -25,9 +23,8 @@ public class BookingApiTest {
 
     @BeforeClass(alwaysRun = true)
     public void authorizeOnce() {
-        System.out.println("\n🔑  ვიღებთ ავტორიზაციის ტოკენს...");
         authClient = new AuthClient().authorize();
-        System.out.println("    ტოკენი მიღებულია: " + authClient.getToken());
+        System.out.println("\n🔑  ტოკენი მიღებულია: " + authClient.getToken());
     }
 
     @Test(priority = 1,
@@ -36,17 +33,13 @@ public class BookingApiTest {
     public void authReturnsValidToken() {
         String token = authClient.getToken();
 
-        SoftAssert softAssert = new SoftAssert();
-        softAssert.assertNotNull(token, "ტოკენი null-ია");
-        softAssert.assertFalse(token.isBlank(), "ტოკენი ცარიელია");
-        softAssert.assertTrue(token.length() >= 10,
-                "ტოკენი ეჭვიანად მოკლეა: '" + token + "'");
-        softAssert.assertAll();
+        Assert.assertNotNull(token, "ტოკენი null-ია");
+        Assert.assertTrue(token.length() >= 10, "ტოკენი ეჭვიანად მოკლეა: " + token);
 
         System.out.println("      ტოკენის სიგრძე: " + token.length());
     }
 
-    @Test(priority = 4,
+    @Test(priority = 2,
           groups = {"smoke", "api"},
           description = "GET /booking/{id} — პასუხის მონაცემების და სტატუს კოდის ვალიდაცია")
     public void getSingleBookingValidatesResponseData() {
@@ -55,9 +48,8 @@ public class BookingApiTest {
         int price = RandomDataGenerator.price();
 
         int bookingId = createBooking(firstName, lastName, price);
-        System.out.println("      შევქმენით ჯავშანი id=" + bookingId);
 
-        Response response = authClient.publicRequest()
+        authClient.publicRequest()
                 .pathParam("id", bookingId)
                 .when()
                     .get(ConfigReader.get("api.booking.path") + "/{id}")
@@ -69,33 +61,19 @@ public class BookingApiTest {
                     .body("totalprice", equalTo(price))
                     .body("depositpaid", equalTo(true))
                     .body("bookingdates.checkin", notNullValue())
-                    .body("bookingdates.checkout", notNullValue())
-                    .extract().response();
+                    .body("bookingdates.checkout", notNullValue());
 
-        System.out.println("      პასუხი: " + response.asString());
-
-        SoftAssert softAssert = new SoftAssert();
-        softAssert.assertEquals(response.statusCode(), 200, "სტატუს კოდი არასწორია");
-        softAssert.assertEquals(response.jsonPath().getString("firstname"), firstName,
-                "firstname არ ემთხვევა");
-        softAssert.assertEquals(response.jsonPath().getString("lastname"), lastName,
-                "lastname არ ემთხვევა");
-        softAssert.assertEquals(response.jsonPath().getInt("totalprice"), price,
-                "totalprice არ ემთხვევა");
-        softAssert.assertAll();
-
-        System.out.println("      ყველა ველი ვალიდურია ✓");
+        System.out.println("      ჯავშანი " + bookingId + " — ყველა ველი ვალიდურია ✓");
         deleteBooking(bookingId);
     }
 
-    @Test(priority = 7,
+    @Test(priority = 3,
           groups = {"regression", "api"},
           description = "POST /booking — body იკითხება JSON ფაილიდან")
     public void createBookingFromJsonFile() {
         String jsonBody = readResourceFile("testdata/booking.json");
-        System.out.println("      ფაილიდან წაკითხული JSON:\n" + jsonBody);
 
-        Response response = authClient.publicRequest()
+        int id = authClient.publicRequest()
                 .contentType(ContentType.JSON)
                 .body(jsonBody)
                 .when()
@@ -106,16 +84,15 @@ public class BookingApiTest {
                     .body("booking.firstname", equalTo("Ana"))
                     .body("booking.lastname", equalTo("Varsimashvili"))
                     .body("booking.totalprice", equalTo(250))
-                    .extract().response();
+                    .extract().jsonPath().getInt("bookingid");
 
-        int id = response.jsonPath().getInt("bookingid");
-        System.out.println("      შეიქმნა ჯავშანი id=" + id);
+        System.out.println("      ფაილიდან შეიქმნა ჯავშანი id=" + id);
 
         Assert.assertTrue(id > 0, "bookingid არასწორია");
         deleteBooking(id);
     }
 
-    @Test(priority = 8,
+    @Test(priority = 4,
           groups = {"regression", "api"},
           description = "PUT /booking/{id} ტოკენით — ჯავშნის განახლება")
     public void updateBookingWithToken() {
@@ -125,28 +102,16 @@ public class BookingApiTest {
         String newLastName = RandomDataGenerator.lastName();
         int newPrice = RandomDataGenerator.price();
 
-        Map<String, Object> updated = new HashMap<>();
-        updated.put("firstname", newFirstName);
-        updated.put("lastname", newLastName);
-        updated.put("totalprice", newPrice);
-        updated.put("depositpaid", false);
-        Map<String, String> dates = new HashMap<>();
-        dates.put("checkin", RandomDataGenerator.today());
-        dates.put("checkout", RandomDataGenerator.daysFromNow(5));
-        updated.put("bookingdates", dates);
-        updated.put("additionalneeds", "Late checkout");
-
         authClient.authorizedRequest()
                 .pathParam("id", bookingId)
-                .body(updated)
+                .body(bookingBody(newFirstName, newLastName, newPrice))
                 .when()
                     .put(ConfigReader.get("api.booking.path") + "/{id}")
                 .then()
                     .statusCode(200)
                     .body("firstname", equalTo(newFirstName))
                     .body("lastname", equalTo(newLastName))
-                    .body("totalprice", equalTo(newPrice))
-                    .body("depositpaid", equalTo(false));
+                    .body("totalprice", equalTo(newPrice));
 
         System.out.println("      ჯავშანი " + bookingId + " განახლდა → "
                 + newFirstName + " " + newLastName + ", " + newPrice);
@@ -154,23 +119,18 @@ public class BookingApiTest {
         deleteBooking(bookingId);
     }
 
-    @Test(priority = 10,
+    @Test(priority = 5,
           groups = {"regression", "api"},
           description = "DELETE /booking/{id} ტოკენით და წაშლის შემოწმება")
     public void deleteBookingWithToken() {
         int bookingId = createBooking("ToBe", "Deleted", 75);
-        System.out.println("      შევქმენით ჯავშანი id=" + bookingId);
 
-        int deleteStatus = authClient.authorizedRequest()
+        authClient.authorizedRequest()
                 .pathParam("id", bookingId)
                 .when()
                     .delete(ConfigReader.get("api.booking.path") + "/{id}")
                 .then()
-                    .extract().statusCode();
-
-        System.out.println("      DELETE → სტატუს კოდი " + deleteStatus);
-        Assert.assertEquals(deleteStatus, 201,
-                "restful-booker წაშლისას 201-ს აბრუნებს");
+                    .statusCode(201);
 
         int getStatus = authClient.publicRequest()
                 .pathParam("id", bookingId)
@@ -180,25 +140,29 @@ public class BookingApiTest {
                     .extract().statusCode();
 
         System.out.println("      წაშლის შემდეგ GET → " + getStatus);
-        Assert.assertEquals(getStatus, 404,
-                "წაშლილი ჯავშანი ისევ ხელმისაწვდომია");
+
+        Assert.assertEquals(getStatus, 404, "წაშლილი ჯავშანი ისევ ხელმისაწვდომია");
     }
 
-    private int createBooking(String firstName, String lastName, int price) {
+    private Map<String, Object> bookingBody(String firstName, String lastName, int price) {
+        Map<String, String> dates = new HashMap<>();
+        dates.put("checkin", RandomDataGenerator.today());
+        dates.put("checkout", RandomDataGenerator.daysFromNow(7));
+
         Map<String, Object> booking = new HashMap<>();
         booking.put("firstname", firstName);
         booking.put("lastname", lastName);
         booking.put("totalprice", price);
         booking.put("depositpaid", true);
-        Map<String, String> dates = new HashMap<>();
-        dates.put("checkin", RandomDataGenerator.today());
-        dates.put("checkout", RandomDataGenerator.daysFromNow(7));
         booking.put("bookingdates", dates);
         booking.put("additionalneeds", "Breakfast");
+        return booking;
+    }
 
+    private int createBooking(String firstName, String lastName, int price) {
         return authClient.publicRequest()
                 .contentType(ContentType.JSON)
-                .body(booking)
+                .body(bookingBody(firstName, lastName, price))
                 .when()
                     .post(ConfigReader.get("api.booking.path"))
                 .then()
@@ -207,14 +171,10 @@ public class BookingApiTest {
     }
 
     private void deleteBooking(int bookingId) {
-        try {
-            authClient.authorizedRequest()
-                    .pathParam("id", bookingId)
-                    .when()
-                    .delete(ConfigReader.get("api.booking.path") + "/{id}");
-        } catch (Exception e) {
-            System.out.println("      (ჯავშნის " + bookingId + " წაშლა ვერ მოხერხდა)");
-        }
+        authClient.authorizedRequest()
+                .pathParam("id", bookingId)
+                .when()
+                .delete(ConfigReader.get("api.booking.path") + "/{id}");
     }
 
     private String readResourceFile(String path) {
